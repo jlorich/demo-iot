@@ -1,0 +1,22 @@
+{
+    "simpleRegistration": {
+        "deviceId": "",
+        "iotHubUri": ""
+    },
+    "dpsRegistration": {
+        "globalDeviceEndpoint": "global.azure-devices-provisioning.net",
+        "idScope": "",
+        "transportMethod": "http"
+    },
+    "x509Security": {
+        "certificateFileName": ""
+    },
+    "symmetricKeySecurity": {
+        "registrationId": "",
+        "primaryKey": "",
+        "secondaryKey": ""
+    },
+    "proxy": {
+        "proxyUri": ""
+    }
+}
