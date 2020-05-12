@@ -2,13 +2,15 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    
     "tasks": [
         {
-            "label": "build",
+            "label": "build device",
             "command": "dotnet",
-            "type": "shell",
+            "type": "shell",            
             "args": [
                 "build",
+                "${workspaceFolder}/src/Device/",
                 // Ask dotnet build to generate full paths for file names.
                 "/property:GenerateFullPaths=true",
                 // Do not generate summary otherwise it leads to duplicate errors in Problems panel
@@ -19,6 +21,49 @@
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
-        }
+        },
+        {
+            "type": "func",
+            "dependsOn": "build service",
+            "options": {
+              "cwd": "${workspaceFolder}/src/Service/bin/Debug/netcoreapp3.1"
+            },
+            "command": "host start",
+            "isBackground": true,
+            "problemMatcher": "$func-watch"
+        },
+        {
+            "label": "clean service",
+            "command": "dotnet",
+            "options": {
+              "cwd": "${workspaceFolder}/src/Service"
+            },
+            "args": [
+              "clean",
+              "/property:GenerateFullPaths=true",
+              "/consoleloggerparameters:NoSummary"
+            ],
+            "type": "process",
+            "problemMatcher": "$msCompile"
+          },
+          {
+            "label": "build service",
+            "command": "dotnet",
+            "options": {
+              "cwd": "${workspaceFolder}/src/Service"
+            },
+            "args": [
+              "build",
+              "/property:GenerateFullPaths=true",
+              "/consoleloggerparameters:NoSummary"
+            ],
+            "type": "process",
+            "dependsOn": "clean",
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+          },
     ]
 }

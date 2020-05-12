@@ -5,21 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Device",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/DeviceProvisioningX509Demo.dll",
+            "preLaunchTask": "build device",
+            "program": "bin/Debug/netcoreapp3.1/MicrosoftSolutions.IoT.Demos.Device.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/src/device",
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
-            "name": ".NET Core Attach",
+            "name": "Service",
             "type": "coreclr",
             "request": "attach",
-            "processId": "${command:pickProcess}"
+            "processId": "${command:azureFunctions.pickProcess}"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Device/Service",
+            "configurations": ["Device", "Service"]
         }
     ]
 }
