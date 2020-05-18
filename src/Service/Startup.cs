@@ -3,7 +3,10 @@ using System.Text;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+using MicrosoftSolutions.IoT.Demos.Common.Contracts;
 using MicrosoftSolutions.IoT.Demos.Rpc;
+using MicrosoftSolutions.IoT.Demos.Service.Services;
+using StreamJsonRpc;
 
 [assembly: FunctionsStartup(typeof(MicrosoftSolutions.IoT.Demos.Service.Startup))]
 
@@ -13,20 +16,29 @@ namespace MicrosoftSolutions.IoT.Demos.Service
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            builder.Services.AddTransient<ISampleService, SampleService>();
+            
+            
             // Register our IoT Service Client
-            builder.Services.AddTransient<ServiceClient>((serviceProvider) => {
+            builder.Services.AddSingleton<ServiceClient>((serviceProvider) => {
                 var connectionString = Environment.GetEnvironmentVariable("IoTHubServiceConnectionString", EnvironmentVariableTarget.Process);
                 return ServiceClient.CreateFromConnectionString(connectionString);
             });
 
-            // Register our RPC client to handle sending responses
-            builder.Services.AddTransient<RpcClient>((serviceProvider) => {
-                var serviceClient = serviceProvider.GetService<ServiceClient>();
+            builder.Services.AddSingleton<DispatchingClientMessageHandler>((services) => {
+                var serviceClient = services.GetService<ServiceClient>();
 
-                return new RpcClient(async (messageString, destinationClientId) => {
-                    var iotMessage = new Message(Encoding.ASCII.GetBytes(messageString));
-                    await serviceClient.SendAsync(destinationClientId, iotMessage);
-                });
+            });
+
+            builder.Services.AddSingleton<JsonRpc>();
+
+            builder.Services.AddSingleton<ISampleService>((services) => {
+                var jsonRpc = services.GetService<JsonRpc>();
+                var service = new SampleService();
+                
+                jsonRpc.AddLocalRpcTarget(service);
+
+                return service;
             });
         }
     }

@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventGrid" Version="2.1.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
+    <PackageReference Include="StreamJsonRpc" Version="2.4.48" />
     <ProjectReference Include="../Common/MicrosoftSolutions.IoT.Demos.Common.csproj" />
   </ItemGroup>
   <ItemGroup>

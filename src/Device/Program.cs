@@ -14,6 +14,7 @@ using MicrosoftSolutions.IoT.Demos.Device.DeviceRegistrationProviders;
 using MicrosoftSolutions.IoT.Demos.Device.Options;
 using MicrosoftSolutions.IoT.Demos.Device.SecurityProviderFactories;
 using MicrosoftSolutions.IoT.Demos.Rpc;
+using StreamJsonRpc;
 
 namespace MicrosoftSolutions.IoT.Demos.Device
 {
@@ -35,6 +36,7 @@ namespace MicrosoftSolutions.IoT.Demos.Device
             
             var configurationBuilder = new ConfigurationBuilder();
             configurationBuilder.AddJsonFile("local.settings.json");
+            
             config = configurationBuilder.Build();
         }
 
@@ -79,25 +81,34 @@ namespace MicrosoftSolutions.IoT.Demos.Device
                 return services.GetService<IDeviceClientFactory>().Create().GetAwaiter().GetResult();
             });
 
-            // Regiser our ServiceClient to call out to our services
-            services.AddHttpClient<DeviceEnrollmentHttpService>(client => {
-                client.BaseAddress = new Uri("http://localhost:7071/api/");
-            });
+            // Register our RPC services and tie it to a sample service
+            services.AddSingleton<ISampleService>((services) => {
+                var deviceClient = services.GetService<DeviceClient>();
+                var registration = services.GetService<IDeviceRegistrationProvider>();
+                
+                var handler = new DispatchingClientMessageHandler();
+                var jsonRpc = new JsonRpc(handler);
 
-            // Register our RPC client to send RPC messages over MQTT/AMQP
-            services.AddSingleton<RpcClient>((serviceProvider) => {
-                var deviceClient = serviceProvider.GetService<DeviceClient>();
-                var deviceRegistrationProvider = serviceProvider.GetService<IDeviceRegistrationProvider>();
-                var deviceId = deviceRegistrationProvider.DeviceId;
+                // Receive
+                deviceClient.SetMethodHandlerAsync("rpc", (request, context) => {
+                    handler.Dispatch(registration.DeviceId, request.DataAsJson);
+                    return Task.FromResult(new MethodResponse(new byte[0], 200));
+                }, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-                return new RpcClient(deviceId, async (messageString, destinationClientId) => {
-                    var iotMessage = new Message(Encoding.ASCII.GetBytes(messageString));
+                // Send
+                handler.SendAsync = async (clientId, message) => {
+                    var iotMessage = new Message(Encoding.UTF8.GetBytes(message));
                     await deviceClient.SendEventAsync(iotMessage);
-                });
+                };
+
+                jsonRpc.StartListening();
+
+                return jsonRpc.Attach<ISampleService>();
+                
             });
 
             // Add the sample device
-            services.AddTransient<SampleDevice>();
+            services.AddSingleton<SampleRpcDevice>();
         }
 
         private static async Task Run() {
@@ -106,20 +117,20 @@ namespace MicrosoftSolutions.IoT.Demos.Device
             var registrationService = provider.GetService<DeviceEnrollmentHttpService>();
             //await registrationService.Enroll();
 
-            var device = provider.GetService<SampleDevice>();
+            var device = provider.GetService<SampleRpcDevice>();
             
 
             while(true) {
-                Console.WriteLine("Sending telemetry message");
+                Console.WriteLine("--- Sending telemetry message ---");
+                await device.CreateUserEvent();
 
-                var user = await device.GetUser(new UserGetRequest() {
-                    UserId = Guid.NewGuid()
-                });
+                Console.WriteLine("--- Getting User ---");
+                var user = await device.GetUser(Guid.NewGuid());
 
                 Console.WriteLine(JsonSerializer.Serialize(user));
 
-                await device.UploadTestFileToStorage();
-                await Task.Delay(5000);
+                // await device.UploadTestFileToStorage();
+                 await Task.Delay(5000);
             }
         }       
     }
