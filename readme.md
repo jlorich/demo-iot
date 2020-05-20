@@ -25,32 +25,32 @@ Each project leverages .NET Core Dependency Injection and Configuration quite he
 
 Some categories of registered services in each project are as follows:
 
-#### Options
+### Options
 
 .NET Core Configuration options are registered and used heavily in both projects to achieve strongly-typed Configuration options to use in the various services.
 
-#### Device Project
+### Device Project
 Inisde the Device project there are a number of registered classes in `Startup.cs`.  Many different classes are available to represent different ways and Azure IoT can be configured.  Based on the Configuration loaded from local.settings.json the appropriate set of classes will be registered.  
 
 The basic category breakdown is as follows:
 
-###### Authentication
+##### Authentication
 
 Security providers represent how prove our identity to IoT Hub or DPS.  Authentication providers represent the union of Device Registration Information and Security and are what the IoT Device Client expects to recieve on instantiation.  Options for Symmetric Key and X509 are available for both and chosen based on the provided configuration.
 
-###### Device Registration
+##### Device Registration
 
 Device Registration Providers give a way to handle device registration.  There are two options availble, `Simple` and `DeviceProvisioningService`.  Simple simply loads the device information (Device ID, IoT Hub URI, etc) from configuration.  DPS will reach out to the Azure IoT Device Provisioning Service with the designated ISecurityProviderFactory generated credentials to find out it's device Id and appropriate IoT Hub URI.
 
-###### Devices
+##### Devices
 
 `DeviceClientFactory` only has a single implementation at the moment, which builds a `DeviceClient` and connects to IoT hub based on the above provided services.
 
  
 
-#### Service Project
+### Service Project
 
-###### Service Client
+##### Service Client
 
 All cloud-side services communicate with IoT Devices by sending message through IoT Hub.  The Connect to IoT hub with the Service Client SDK.
 
