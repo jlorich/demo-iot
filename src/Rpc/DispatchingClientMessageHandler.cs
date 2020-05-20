@@ -32,27 +32,6 @@ namespace MicrosoftSolutions.IoT.Demos.Rpc {
         public Func<string, string, Task> SendAsync { get; set; }
 
         /// <summary>
-        ///  Constructs a new Dispatching Client Message Handler
-        // /// </summary>
-        // public DispatchingClientMessageHandler() : base(new JsonMessageFormatter()) {
-
-        // }
-
-        
-        // ~DispatchingClientMessageHandler(){
-        //     Console.WriteLine("KILLING IT");
-        // }
-
-        // public new void Dispose()
-        // {
-        //     Console.WriteLine("Fuck.");
-        // // Dispose of unmanaged resources.
-        // Dispose(true);
-        // // Suppress finalization.
-        // GC.SuppressFinalize(this);
-        // }
-
-        /// <summary>
         ///  Enqueues a new message to be processed asynchronously
         /// </summary>
         /// <parameter name="message">The json-rpc message representing the method call to execute</parameter>
