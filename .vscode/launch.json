@@ -19,7 +19,8 @@
             "name": "Service",
             "type": "coreclr",
             "request": "attach",
-            "processId": "${command:azureFunctions.pickProcess}"
+            "processId": "${command:azureFunctions.pickProcess}",
+            "justMyCode": false
         }
     ],
     "compounds": [

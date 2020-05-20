@@ -31,9 +31,7 @@ namespace MicrosoftSolutions.IoT.Demos.Device.DeviceClientFactories {
             _proxyOptions = proxyOptions.Value;
         }
 
-        public async Task<DeviceClient> Create() {
-            await _registrationProvider.Register();
-
+        public DeviceClient Create() {
             // Set up a proxy for DPS if specified
             if (!String.IsNullOrEmpty(_proxyOptions?.ProxyUri)) {
                 // Configure IoT Hub/Central Proxy

@@ -39,7 +39,7 @@ namespace MicrosoftSolutions.IoT.Demos.Device.DeviceRegistrationProviders {
         }
 
         // Registers a device with the Device Provisioning Service using X509 Certificate Authentication
-        public async Task Register() {
+        public async Task RegisterAsync() {
             ProvisioningTransportHandler transport;
             
             switch(_deviceRegistrationOptions.TransportMethod) {

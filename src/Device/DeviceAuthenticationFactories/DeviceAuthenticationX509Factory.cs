@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
@@ -18,9 +19,7 @@ namespace MicrosoftSolutions.IoT.Demos.Device.SecurityProviderFactories {
             _deviceRegistrationProvider = deviceRegistrationProvider;
         }
 
-        public async Task<IAuthenticationMethod> Create() {
-            await _deviceRegistrationProvider.Register();
-
+        public IAuthenticationMethod Create() {
             return new DeviceAuthenticationWithX509Certificate(
                 _deviceRegistrationProvider.DeviceId,
                 _securityProvider.GetAuthenticationCertificate());

@@ -1,4 +1,8 @@
 {
+    "authenticationMethod": "SymmetricKey",
+    "registrationMethod": "DeviceProvisioningService",
+    "rpcMethodName": "rpc",
+
     "simpleRegistration": {
         "deviceId": "",
         "iotHubUri": ""

@@ -13,7 +13,7 @@ namespace MicrosoftSolutions.IoT.Demos.Device.DeviceRegistrationProviders {
         }
 
         // Noop since we are not registering this device with DPS
-        public async Task Register() {
+        public async Task RegisterAsync() {
             await Task.CompletedTask;
         }
 
