@@ -1,6 +1,6 @@
 # Azure IoT Hub Swiss Army Knife
 
-This repository an application that exercies a number of different concepts within the Azure IoT suite including IoT Hub, Device Provisioning Services, Azure Functions integrations, and more.
+This repository an application that exercies a number of different concepts within the Azure IoT suite including IoT Hub, Device Provisioning Services, Azure Functions integrations, and more that are all interchangable based on configuration settings (hence the "Swiss Army Knife" moniker).
 
 ## Developing
 
