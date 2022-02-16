@@ -1,20 +1,11 @@
 ﻿using System;
-using System.Text;
-using System.Text.Json;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.Devices.Client;
-using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MicrosoftSolutions.IoT.Demos.Common.Contracts;
 using MicrosoftSolutions.IoT.Demos.Common.Models;
-using MicrosoftSolutions.IoT.Demos.Device.DeviceAuthenticationFactories;
-using MicrosoftSolutions.IoT.Demos.Device.DeviceClientFactories;
-using MicrosoftSolutions.IoT.Demos.Device.DeviceRegistrationProviders;
-using MicrosoftSolutions.IoT.Demos.Device.Options;
-using MicrosoftSolutions.IoT.Demos.Device.SecurityProviderFactories;
-using MicrosoftSolutions.IoT.Demos.Rpc;
-using StreamJsonRpc;
+using ProtoBuf;
 
 namespace MicrosoftSolutions.IoT.Demos.Device
 {
@@ -43,27 +34,50 @@ namespace MicrosoftSolutions.IoT.Demos.Device
         private static async Task RunAsync() {
             var provider = _Services.BuildServiceProvider();
             var deviceClient = provider.GetService<DeviceClient>();
-            var rpcService = provider.GetService<IRpcService>();
+            var rnd = new Random();
+            var protoBatch = new ProtoMessageBatch() {
+                Messages = new ProtoMessage[50]
+            };
 
             while(true) {
-                Console.WriteLine("--- Sending telemetry message ---");
-                var userId = Guid.NewGuid();
+                // Generate proto batch
+                for(var j = 0; j < 50; j++) {
+                    protoBatch.Messages[j] = new ProtoMessage() {
+                        Tag = "TEMPERATURE",
+                        Value = rnd.Next()*100,
+                        Timestamp = DateTime.Now
+                    };
+                }
+                MemoryStream stream = new MemoryStream();
 
-                var user = await rpcService.GetUserById(userId);
+                // bool once = false;
+                // if (!once) {
+                //     using(FileStream fs = File.Create("data.bin")) {
+                //         Serializer.Serialize(fs, protoBatch);
+                //     }
 
-                await rpcService.CreateUserEvent(
-                    user.Id,
-                    UserAction.KilledHerHusband
-                );
+                //     once = true;
+                // }
 
-                Console.WriteLine("--- Getting User ---");
+                Serializer.Serialize(stream, protoBatch);
+
+                var message = new Message(stream) {
+                    ContentType = "application/protobuf"
+                };
                 
+                // read stream content and write b64 to console
+                StreamReader reader = new StreamReader(message.BodyStream);
+                var bytes = stream.ToArray();
+                var byteString = Convert.ToBase64String(bytes);
+                Console.WriteLine(byteString);
 
-                Console.WriteLine(JsonSerializer.Serialize(user));
-
-                // await device.UploadTestFileToStorage();
+                // reset stream position
+                message.BodyStream.Position = 0;
+               
+                await deviceClient.SendEventAsync(message);
+                
                 await Task.Delay(5000);
             }
-        }       
+        }
     }
 }

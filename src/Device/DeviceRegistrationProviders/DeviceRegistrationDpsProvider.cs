@@ -12,17 +12,17 @@ namespace MicrosoftSolutions.IoT.Demos.Device.DeviceRegistrationProviders {
     // Provides device registration information from the IoT Hub Device Provisioning Service
     public class DeviceRegistrationDpsProvider : IDeviceRegistrationProvider {
         private DeviceRegistrationDpsOptions _deviceRegistrationOptions;
-        private ProxyOptions _proxyOptions;
+        private TransportOptions _transportOptions;
         private SecurityProvider _securityProvider;
         private DeviceRegistrationResult _registrationResult;
 
         public DeviceRegistrationDpsProvider(
             IOptions<DeviceRegistrationDpsOptions> deviceRegistrationOptions,
-            IOptions<ProxyOptions> proxyOptions,
+            IOptions<TransportOptions> transportOptions,
             SecurityProvider securityProvider
         ) {
             _deviceRegistrationOptions = deviceRegistrationOptions.Value;
-            _proxyOptions = proxyOptions.Value;
+            _transportOptions = transportOptions.Value;
             _securityProvider = securityProvider;
         }
 
@@ -57,8 +57,8 @@ namespace MicrosoftSolutions.IoT.Demos.Device.DeviceRegistrationProviders {
             } 
 
             // Set up a proxy for DPS if specified
-            if (!String.IsNullOrEmpty(_proxyOptions?.ProxyUri)) {
-                transport.Proxy = new WebProxy(_proxyOptions.ProxyUri);
+            if (!String.IsNullOrEmpty(_transportOptions?.ProxyUri)) {
+                transport.Proxy = new WebProxy(_transportOptions.ProxyUri);
             }
 
             // Create the provisioning client

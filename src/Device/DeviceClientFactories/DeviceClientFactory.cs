@@ -17,26 +17,26 @@ namespace MicrosoftSolutions.IoT.Demos.Device.DeviceClientFactories {
 
         IDeviceRegistrationProvider _registrationProvider;
 
-        private ProxyOptions _proxyOptions;
+        private TransportOptions _transportOptions;
 
         public DeviceClientFactory(
             SecurityProvider securityProvider,
             IAuthenticationMethod authenticationMethod,
             IDeviceRegistrationProvider registrationProvider,
-            IOptions<ProxyOptions> proxyOptions
+            IOptions<TransportOptions> transportOptions
         ) {
             _securityProvider = securityProvider;
             _authenticationMethod = authenticationMethod;
             _registrationProvider = registrationProvider;
-            _proxyOptions = proxyOptions.Value;
+            _transportOptions = transportOptions.Value;
         }
 
         public DeviceClient Create() {
             // Set up a proxy for DPS if specified
-            if (!String.IsNullOrEmpty(_proxyOptions?.ProxyUri)) {
+            if (!String.IsNullOrEmpty(_transportOptions?.ProxyUri)) {
                 // Configure IoT Hub/Central Proxy
                 Http1TransportSettings transportSettings = new Http1TransportSettings();
-                transportSettings.Proxy = new WebProxy(_proxyOptions.ProxyUri);
+                transportSettings.Proxy = new WebProxy(_transportOptions.ProxyUri);
                 ITransportSettings[] transportSettingsArray = new ITransportSettings[] { transportSettings };
 
                 return DeviceClient.Create(
@@ -48,7 +48,8 @@ namespace MicrosoftSolutions.IoT.Demos.Device.DeviceClientFactories {
 
             return DeviceClient.Create(
                 _registrationProvider.AssignedHub,
-                _authenticationMethod
+                _authenticationMethod,
+                transportType: _transportOptions.TransportType
             );
         }
     }

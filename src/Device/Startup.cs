@@ -96,7 +96,7 @@ namespace MicrosoftSolutions.IoT.Demos.Device
                     services.AddSingleton<IDeviceRegistrationProvider>((services) => {
                         var provider = new DeviceRegistrationDpsProvider(
                             services.GetService<IOptions<DeviceRegistrationDpsOptions>>(),
-                            services.GetService<IOptions<ProxyOptions>>(),
+                            services.GetService<IOptions<TransportOptions>>(),
                             services.GetService<SecurityProvider>()
                         );
 
@@ -127,6 +127,8 @@ namespace MicrosoftSolutions.IoT.Demos.Device
             services.AddSingleton<DeviceClient>((services) => {
                 return services.GetService<IDeviceClientFactory>().Create();
             });
+
+            services.Configure<TransportOptions>(Configuration.GetSection("transport"));
         }
 
         /// <summary>
